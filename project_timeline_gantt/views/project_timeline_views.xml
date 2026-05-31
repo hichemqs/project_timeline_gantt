@@ -27,7 +27,7 @@
                         string="Open Source"
                         type="object"
                         icon="fa-external-link"
-                        attrs="{'invisible': [('source_record_id', '=', 0)]}"/>
+                        invisible="not source_record_id"/>
             </list>
         </field>
     </record>
@@ -45,7 +45,7 @@
                             string="Open Source Record"
                             type="object"
                             class="btn-primary"
-                            attrs="{'invisible': [('source_record_id', '=', 0)]}"/>
+                            invisible="not source_record_id"/>
                 </header>
                 <sheet>
                     <group>
