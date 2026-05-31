@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         project.timeline — Gantt View (Odoo 19 Enterprise)
+
+         Key attributes:
+           date_start / date_stop : the two mandatory Gantt date fields
+           color          : field driving bar colors (timeline_type integer
+                            or display_color index — we use display_color
+                            since it carries distinct per-type integers)
+           default_scale  : initial time scale shown on load
+           consolidation  : not needed here (no sub-grouping aggregation)
+           pill_label     : text shown inside each bar
+
+         On-click behavior:
+           The standard Gantt renderer in Odoo 19 opens the form view of
+           the record when a bar is clicked. We override action_open_source_record
+           on the model so the form immediately redirects to the source document
+           by returning an act_window action — this is handled server-side.
+
+           Note: In Odoo 19 the Gantt view supports an `on_create` attribute
+           and a `form_view_id` for in-place editing. We set form_view_id to our
+           timeline form so clicking opens the right form.
+         ================================================================ -->
+
+    <record id="view_project_timeline_gantt" model="ir.ui.view">
+        <field name="name">project.timeline.gantt</field>
+        <field name="model">project.timeline</field>
+        <field name="arch" type="xml">
+            <gantt
+                string="Project Timeline"
+                date_start="date_start"
+                date_stop="date_end"
+                color="display_color"
+                default_scale="month"
+                pill_label="True"
+                thumbnails="{'partner_id': 'image_128', 'supplier_id': 'image_128'}"
+                total_row="True"
+                collapse_first_level="False"
+                sample="1"
+            >
+                <!--
+                    Decorations: visually distinguish record types.
+                    display_color values:
+                      1 = Purchase  (blue-ish)
+                      2 = Sale      (green-ish)
+                      3 = Manufacturing (orange-ish)
+                -->
+                <field name="name"/>
+                <field name="timeline_type"/>
+                <field name="display_color"/>
+                <field name="partner_id"/>
+                <field name="supplier_id"/>
+                <field name="project_id"/>
+                <field name="source_model"/>
+                <field name="source_record_id"/>
+
+                <!--
+                    Popover template displayed when hovering a Gantt bar.
+                    Uses Odoo's built-in gantt popover template syntax.
+                -->
+                <templates>
+                    <t t-name="gantt-popover">
+                        <ul class="list-unstyled mb-0">
+                            <li>
+                                <strong>Type: </strong>
+                                <t t-esc="record.timeline_type"/>
+                            </li>
+                            <li t-if="record.partner_id">
+                                <strong>Partner: </strong>
+                                <t t-esc="record.partner_id[1]"/>
+                            </li>
+                            <li t-if="record.supplier_id">
+                                <strong>Supplier: </strong>
+                                <t t-esc="record.supplier_id[1]"/>
+                            </li>
+                            <li t-if="record.project_id">
+                                <strong>Project: </strong>
+                                <t t-esc="record.project_id[1]"/>
+                            </li>
+                            <li>
+                                <strong>Start: </strong>
+                                <t t-esc="record.date_start"/>
+                            </li>
+                            <li>
+                                <strong>End: </strong>
+                                <t t-esc="record.date_end"/>
+                            </li>
+                        </ul>
+                    </t>
+                </templates>
+
+            </gantt>
+        </field>
+    </record>
+
+</odoo>

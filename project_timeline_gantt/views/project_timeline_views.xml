@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         project.timeline — List View
+         ================================================================ -->
+    <record id="view_project_timeline_list" model="ir.ui.view">
+        <field name="name">project.timeline.list</field>
+        <field name="model">project.timeline</field>
+        <field name="arch" type="xml">
+            <list string="Timeline" decoration-info="timeline_type == 'purchase'"
+                  decoration-success="timeline_type == 'sale'"
+                  decoration-warning="timeline_type == 'manufacturing'">
+                <field name="name"/>
+                <field name="timeline_type" widget="badge"
+                       decoration-info="timeline_type == 'purchase'"
+                       decoration-success="timeline_type == 'sale'"
+                       decoration-warning="timeline_type == 'manufacturing'"/>
+                <field name="project_id" optional="show"/>
+                <field name="partner_id" optional="show"/>
+                <field name="supplier_id" optional="hide"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="source_model" optional="hide"/>
+                <field name="source_record_id" optional="hide"/>
+                <button name="action_open_source_record"
+                        string="Open Source"
+                        type="object"
+                        icon="fa-external-link"
+                        attrs="{'invisible': [('source_record_id', '=', 0)]}"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         project.timeline — Form View
+         ================================================================ -->
+    <record id="view_project_timeline_form" model="ir.ui.view">
+        <field name="name">project.timeline.form</field>
+        <field name="model">project.timeline</field>
+        <field name="arch" type="xml">
+            <form string="Timeline Entry">
+                <header>
+                    <button name="action_open_source_record"
+                            string="Open Source Record"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('source_record_id', '=', 0)]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="General">
+                            <field name="name"/>
+                            <field name="timeline_type"/>
+                            <field name="project_id"/>
+                        </group>
+                        <group string="Parties">
+                            <field name="partner_id"/>
+                            <field name="supplier_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Dates">
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                        <group string="Source">
+                            <field name="source_model" readonly="1"/>
+                            <field name="source_record_id" readonly="1"/>
+                            <field name="source_url" widget="url" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         project.timeline — Search View
+         ================================================================ -->
+    <record id="view_project_timeline_search" model="ir.ui.view">
+        <field name="name">project.timeline.search</field>
+        <field name="model">project.timeline</field>
+        <field name="arch" type="xml">
+            <search string="Search Timeline">
+
+                <!-- Quick search fields -->
+                <field name="name" string="Name"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="supplier_id" string="Supplier"/>
+                <field name="project_id" string="Project"/>
+
+                <!-- Type filters -->
+                <filter string="Purchase Orders"
+                        name="filter_purchase"
+                        domain="[('timeline_type', '=', 'purchase')]"/>
+                <filter string="Sales Orders"
+                        name="filter_sale"
+                        domain="[('timeline_type', '=', 'sale')]"/>
+                <filter string="Manufacturing Orders"
+                        name="filter_manufacturing"
+                        domain="[('timeline_type', '=', 'manufacturing')]"/>
+
+                <!-- Date filters -->
+                <separator/>
+                <filter string="Starting This Month"
+                        name="filter_start_this_month"
+                        domain="[
+                            ('date_start', '&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                            ('date_start', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))
+                        ]"/>
+                <filter string="Ending This Month"
+                        name="filter_end_this_month"
+                        domain="[
+                            ('date_end', '&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                            ('date_end', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))
+                        ]"/>
+                <filter string="Archived"
+                        name="filter_archived"
+                        domain="[('active', '=', False)]"/>
+
+                <!-- Group by options -->
+                <separator/>
+                <group string="Group By">
+                    <filter string="Type"
+                            name="group_by_type"
+                            context="{'group_by': 'timeline_type'}"/>
+                    <filter string="Project"
+                            name="group_by_project"
+                            context="{'group_by': 'project_id'}"/>
+                    <filter string="Partner"
+                            name="group_by_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Supplier"
+                            name="group_by_supplier"
+                            context="{'group_by': 'supplier_id'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Window Action
+         ================================================================ -->
+    <record id="action_project_timeline" model="ir.actions.act_window">
+        <field name="name">Project Timeline</field>
+        <field name="res_model">project.timeline</field>
+        <field name="view_mode">gantt,list,form</field>
+        <field name="search_view_id" ref="view_project_timeline_search"/>
+        <field name="context">{
+            'search_default_group_by_type': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No timeline entries yet.
+            </p>
+            <p>
+                Timeline entries are automatically created when Purchase Orders,
+                Sales Orders, or Manufacturing Orders are saved.
+            </p>
+        </field>
+    </record>
+
+</odoo>

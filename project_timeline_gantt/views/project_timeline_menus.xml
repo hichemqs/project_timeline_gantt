@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Menu structure:
+           Project (existing top-level)
+             └── Planning
+                   └── Project Timeline   (new entry)
+         ================================================================ -->
+
+    <!-- Sub-menu under Project > Planning (create Planning node if absent) -->
+    <menuitem
+        id="menu_project_planning"
+        name="Planning"
+        parent="project.menu_main_pm"
+        sequence="15"
+    />
+
+    <menuitem
+        id="menu_project_timeline"
+        name="Project Timeline"
+        parent="menu_project_planning"
+        action="action_project_timeline"
+        sequence="10"
+    />
+
+</odoo>
